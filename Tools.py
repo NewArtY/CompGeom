@@ -1,6 +1,7 @@
 import numpy as np
 from math import sqrt
 from typing import Final
+from random import randint
 
 
 colorType: Final = tuple[int, int, int] | tuple[int, int, int, int]
@@ -40,3 +41,12 @@ def reflect_vec(dot: dvType, vec: dvType, rect: rectType) -> np.ndarray[np.float
 def rect_to_polyline(rect: rectType) -> np.ndarray[[np.float64, np.float64], ...]:
     redef = [rect[0], [rect[0][0], rect[1][1]], rect[1], [rect[1][0], rect[0][1]], rect[0]]
     return np.array(redef, dtype=np.float64)
+
+
+def color_randomize(color: colorType, neighborhood: int | float = 1) -> colorType:
+    _red = randint(max(0, color[0] - neighborhood), min(255, color[0] + neighborhood))
+    _green = randint(max(0, color[1] - neighborhood), min(255, color[1] + neighborhood))
+    _blue = randint(max(0, color[2] - neighborhood), min(255, color[2] + neighborhood))
+    if len(color) == 4:
+        return _red, _green, _blue, color[3]
+    return _red, _green, _blue

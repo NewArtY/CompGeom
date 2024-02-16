@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Final, Sequence
 from random import randint
-from Tools import dot_coors, dvType, colorType
+from Tools import dot_coors, dvType, colorType, color_randomize
 import pygame
 from pygame.gfxdraw import pixel, line, filled_circle
 
@@ -91,7 +91,7 @@ class DotCloud:
         for _ in range(self.count):
             self.__dots.append(Dot(np.array((randint(self.rect[0][0], self.rect[1][0]),
                                              randint(self.rect[0][1], self.rect[1][1]))),
-                                   self.color))
+                                   color_randomize(self.color, 30)))
 
     def pg_draw(self, screen: pygame.Surface):
         for dot in self.__dots:

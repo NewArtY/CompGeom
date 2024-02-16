@@ -330,7 +330,7 @@ def pg_dotcloud():
             display.create_fat_point(place, 10)
     done = False
     #Облако точек
-    display.create_cloud_dot(500, rect, (255, 0, 0))
+    display.create_cloud_dot(500, rect, (100, 100, 100))
     while not done:
         clock.tick(50)
         for event in pygame.event.get():
