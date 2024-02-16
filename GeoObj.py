@@ -79,12 +79,20 @@ class Worm:
 
 
 class DotCloud:
-    def __init__(self, count: int, rect: Sequence[Sequence[int, int], Sequence[int, int]]):
+    def __init__(self, count: int, rect: list[list[int]], color: colorType = clWhite):
         self.count = count
         self.rect = rect
+        self.color = color
         self.__dots: list[Dot] = []
+        self.__gen()
+        self.hidden = False
 
-    def _gen(self):
+    def __gen(self):
         for _ in range(self.count):
             self.__dots.append(Dot(np.array((randint(self.rect[0][0], self.rect[1][0]),
-                                             randint(self.rect[0][1], self.rect[1][1])))))
+                                             randint(self.rect[0][1], self.rect[1][1]))),
+                                   self.color))
+
+    def pg_draw(self, screen: pygame.Surface):
+        for dot in self.__dots:
+            dot.pg_draw(screen)

@@ -306,3 +306,36 @@ def pg_reflect():
         runer.move(run_dir)
         pygame.display.flip()
     pygame.quit()
+
+#pygame: Задача про облако точкек
+def pg_dotcloud():
+    """pygame: облако точкек находится внутри прямоугольника"""
+    pygame.init()
+    screen = pygame.display.set_mode([1600, 1200])
+    pygame.display.set_caption('Внутри прямоугольника 2')
+    clock = pygame.time.Clock()
+    display = Display(screen)
+    rect = [[-400, -300], [400, 300]]
+    # Обрамление рамок прямоугольника точками:
+    width, height = rect[1][0] - rect[0][0], rect[1][1] - rect[0][1]
+    dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+    length_step = 25
+    width_step, height_step = width // length_step, height // length_step
+    place = dot_coors(rect[0])
+    for dir_ in dirs:
+        d = dot_coors(dir_)
+        way = width_step if d[0] else height_step
+        for _ in range(way):
+            place += d*length_step
+            display.create_fat_point(place, 10)
+    done = False
+    #Облако точек
+    display.create_cloud_dot(500, rect, (255, 0, 0))
+    while not done:
+        clock.tick(50)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+        display.show()
+        pygame.display.flip()
+    pygame.quit()

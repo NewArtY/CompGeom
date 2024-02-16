@@ -10,7 +10,7 @@ class Display:
         :param screen: экран (холст) в pygame.
         :param back_color: цвет фона: кортеж из 3 или 4 значений (RGB / RGBA, где A - прозрачность).
         """
-        self.__objects: list[Dot | FatDot | Worm] = []
+        self.__objects: list[Dot | FatDot | Worm | DotCloud] = []
         self.screen = screen
         self.back_color = back_color
 
@@ -29,6 +29,11 @@ class Display:
         pg_worm = Worm(head_coors, min_r, max_r, length, step, color)
         self.__objects.append(pg_worm)
         return pg_worm
+
+    def create_cloud_dot(self, count: int, rect: list[list[int]], color: colorType = clWhite):
+        pg_cloud_dot = DotCloud(count, rect, color)
+        self.__objects.append(pg_cloud_dot)
+        return pg_cloud_dot
     #!Определения новых объектов на поверхности помещать здесь!
 
     def show(self):
