@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Final
+from typing import Final, Sequence
 from random import randint
 from Tools import dot_coors, dvType, colorType
 import pygame
@@ -58,7 +58,7 @@ class Worm:
                  length: int = 5, step: int | float = 5, color: colorType = clWhite):
         self.color = color
         self.length = length
-        self.cells: list[FatDot, ...] = [FatDot(head_coors, randint(min_r, max_r), self.color)]
+        self.cells: list[FatDot] = [FatDot(head_coors, randint(min_r, max_r), self.color)]
         self._create_worm(min_r, max_r, step)
         self.hidden = False
 
@@ -76,3 +76,15 @@ class Worm:
     def pg_draw(self, screen: pygame.Surface):
         for cell in self.cells:
             cell.pg_draw(screen)
+
+
+class DotCloud:
+    def __init__(self, count: int, rect: Sequence[Sequence[int, int], Sequence[int, int]]):
+        self.count = count
+        self.rect = rect
+        self.__dots: list[Dot] = []
+
+    def _gen(self):
+        for _ in range(self.count):
+            self.__dots.append(Dot(np.array((randint(self.rect[0][0], self.rect[1][0]),
+                                             randint(self.rect[0][1], self.rect[1][1])))))
