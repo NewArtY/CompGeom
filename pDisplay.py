@@ -10,7 +10,7 @@ class Display:
         :param screen: экран (холст) в pygame.
         :param back_color: цвет фона: кортеж из 3 или 4 значений (RGB / RGBA, где A - прозрачность).
         """
-        self.__objects: list[Dot | FatDot | Worm | DotCloud | Polyline | Polygon] = []
+        self.__objects: list[Dot | FatDot | Worm | DotCloud | Polyline | Polygon | Square] = []
         self.screen = screen
         self.back_color = back_color
 
@@ -44,6 +44,11 @@ class Display:
         pg_polygon = Polygon(coors, color)
         self.__objects.append(pg_polygon)
         return pg_polygon
+
+    def create_square(self, center: dvType, height: int | float, color: colorType):
+        pg_square = Square(center, height, color)
+        self.__objects.append(pg_square)
+        return pg_square
     #!Определения новых объектов на поверхности помещать здесь!
 
     def show(self):

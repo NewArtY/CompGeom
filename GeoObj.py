@@ -25,8 +25,8 @@ class _AbstractGeoObj:
 
 class Dot(_AbstractGeoObj):
     def __init__(self, coors: dvType = np.array([0, 0]), color: colorType = clWhite):
-        self._coors = self._new_coors(coors)
         super().__init__(color)
+        self._coors = self._new_coors(coors)
 
     def move(self, d: dvType = np.array([0, 0])):
         d = self._new_coors(d)
@@ -65,10 +65,10 @@ class FatDot(Dot):
 class Worm(_AbstractGeoObj):
     def __init__(self, head_coors: dvType = np.array([0, 0]), min_r: int = 1, max_r: int = 5,
                  length: int = 5, step: int | float = 5, color: colorType = clWhite):
+        super().__init__(color)
         self.length = length
         self.cells: list[FatDot] = [FatDot(head_coors, randint(min_r, max_r), self.color)]
         self._create_worm(min_r, max_r, step)
-        super().__init__(color)
 
     def _create_worm(self, min_r, max_r, step):
         head = self.cells[0].coors
@@ -88,11 +88,11 @@ class Worm(_AbstractGeoObj):
 
 class DotCloud(_AbstractGeoObj):
     def __init__(self, count: int, rect: list[list[int]], color: colorType = clWhite):
+        super().__init__(color)
         self.count = count
         self.rect = rect
         self.__dots: list[Dot] = []
         self.__gen()
-        super().__init__(color)
 
     def __gen(self):
         for _ in range(self.count):
@@ -107,8 +107,8 @@ class DotCloud(_AbstractGeoObj):
 
 class Polyline(_AbstractGeoObj):
     def __init__(self, coors: polylineType, color: colorType):
-        self.coors = Polyline.__generalized_mod(coors)
         super().__init__(color)
+        self._coors = Polyline.__generalized_mod(coors)
 
     def move_to(self, D):
         self.abstract_transformation(0, D, 1)
@@ -132,19 +132,21 @@ class Polyline(_AbstractGeoObj):
         self.scale_by_dot(c, k)
 
     def pg_draw(self, screen: pygame.Surface):
-        for (x1, y1), (x2, y2) in zip(self.coors[:-1], self.coors[1:]):
-            line(screen, int(x1), int(y1), int(x2), int(y2), self.color)
+        height, width = screen.get_height(), screen.get_width()
+        for (x1, y1, _), (x2, y2, _) in zip(self._coors[:-1], self._coors[1:]):
+            line(screen, int(x1 + width // 2), int(height // 2 - y1),
+                 int(x2 + width // 2), int(height // 2 - y2), self.color)
 
     @property
     def _center(self):
-        return np.mean(self.coors, axis=0)[:2]
+        return np.mean(self._coors, axis=0)[:2]
 
     def abstract_transformation(self, alpha: int | float = 0, d: dvType = (0, 0), k: int | float = 1):
         f = np.array([[k * cos(alpha), k*sin(alpha), 0],
                       [-k*sin(alpha), k * cos(alpha), 0],
                       [d[0], d[1], 1]]
                      )
-        self.coors = self.coors.dot(f)
+        self._coors = self._coors.dot(f)
 
     @staticmethod
     def __generalized_mod(coors: polylineType):
@@ -160,4 +162,15 @@ class Polygon(Polyline):
 
     @property
     def _center(self):
-        return np.mean(self.coors[:-1], axis=0)[:2]
+        return np.mean(self._coors[:-1], axis=0)[:2]
+
+
+class Square(Polygon):
+    def __init__(self, center: dvType, height: int | float, color: colorType):
+        coors = Square.create_square_coors(center, height)
+        super().__init__(coors, color)
+
+    @staticmethod
+    def create_square_coors(c, h):
+        return [[c[0] - h//2, c[1] - h//2], [c[0] - h//2, c[1] + h//2],
+                [c[0] + h//2, c[1] + h//2], [c[0] + h//2, c[1] - h//2]]

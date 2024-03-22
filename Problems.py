@@ -339,3 +339,35 @@ def pg_dotcloud():
         display.show()
         pygame.display.flip()
     pygame.quit()
+
+#pygame: Задача про полилайн
+def pg_polyline():
+    """pygame: ломаная линия: вращение, перемещение, изменение размеров"""
+    def multy_():
+        while True:
+            for _ in range(20):
+                yield 0.95
+            for _ in range(20):
+                yield 1/0.95
+
+    pygame.init()
+    screen = pygame.display.set_mode([1600, 1200])
+    pygame.display.set_caption('Ломаная линия')
+    clock = pygame.time.Clock()
+    display = Display(screen)
+    display.create_polyline([[-50, -50], [0, 50], [50, -50], [25, 0], [-25, 0]], clRed)
+    s = display.create_square([0, 0], 100, [100, 100, 250])
+    rotating_s = display.create_square([200, 0], 50, [200, 200, 250])
+    stepper = multy_()
+    done = False
+    while not done:
+        clock.tick(30)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+        s.rotate(pi/30)
+        s.scale(next(stepper))
+        rotating_s.rotate_by_dot(-pi/30, [0,0])
+        display.show()
+        pygame.display.flip()
+    pygame.quit()

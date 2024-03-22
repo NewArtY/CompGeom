@@ -8,7 +8,7 @@ colorType: Final = tuple[int, int, int] | tuple[int, int, int, int]
 dvType: Final = np.ndarray[int | np.float64, int | np.float64] | list[int | float, int | float] | \
                  tuple[int | float, int | float]
 rectType: Final = list[[int, int], [int, int]] | np.ndarray[[int, int], [int, int]]
-NumberPair = Tuple[Union[int, float], Union[int, float]]
+NumberPair = tuple[int | float, int | float] | list[int | float, int | float]
 polylineType: Final = Union[List[NumberPair], Tuple[NumberPair, ...], np.ndarray]
 #polylineType: Final = list[[int | float, int | float], ...] | tuple[[int | float, int | float], ...] | \
                       #np.ndarray[[int | np.float64, int | np.float64], ...]
