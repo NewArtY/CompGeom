@@ -1,9 +1,10 @@
 import numpy as np
 from typing import Final, Sequence
 from random import randint
-from Tools import dot_coors, dvType, colorType, color_randomize
+from Tools import dot_coors, dvType, colorType, color_randomize, polylineType
 import pygame
 from pygame.gfxdraw import pixel, line, filled_circle
+from math import cos, sin
 
 
 clBlack: Final = (0, 0, 0)
@@ -13,11 +14,19 @@ clBlue: Final = (0, 0, 255)
 clWhite: Final = (255, 255, 255)
 
 
-class Dot:
-    def __init__(self, coors: dvType = np.array([0, 0]), color: colorType = clWhite):
-        self._coors = self._new_coors(coors)
+class _AbstractGeoObj:
+    def __init__(self, color: colorType = clWhite):
         self.color = color
         self.hidden = False
+
+    def pg_draw(self, screen: pygame.Surface):
+        pass
+
+
+class Dot(_AbstractGeoObj):
+    def __init__(self, coors: dvType = np.array([0, 0]), color: colorType = clWhite):
+        self._coors = self._new_coors(coors)
+        super().__init__(color)
 
     def move(self, d: dvType = np.array([0, 0])):
         d = self._new_coors(d)
@@ -53,14 +62,13 @@ class FatDot(Dot):
         filled_circle(screen, int(self._coors[0] + width // 2), int(height // 2 - self._coors[1]), self.r, self.color)
 
 
-class Worm:
+class Worm(_AbstractGeoObj):
     def __init__(self, head_coors: dvType = np.array([0, 0]), min_r: int = 1, max_r: int = 5,
                  length: int = 5, step: int | float = 5, color: colorType = clWhite):
-        self.color = color
         self.length = length
         self.cells: list[FatDot] = [FatDot(head_coors, randint(min_r, max_r), self.color)]
         self._create_worm(min_r, max_r, step)
-        self.hidden = False
+        super().__init__(color)
 
     def _create_worm(self, min_r, max_r, step):
         head = self.cells[0].coors
@@ -78,14 +86,13 @@ class Worm:
             cell.pg_draw(screen)
 
 
-class DotCloud:
+class DotCloud(_AbstractGeoObj):
     def __init__(self, count: int, rect: list[list[int]], color: colorType = clWhite):
         self.count = count
         self.rect = rect
-        self.color = color
         self.__dots: list[Dot] = []
         self.__gen()
-        self.hidden = False
+        super().__init__(color)
 
     def __gen(self):
         for _ in range(self.count):
@@ -96,3 +103,61 @@ class DotCloud:
     def pg_draw(self, screen: pygame.Surface):
         for dot in self.__dots:
             dot.pg_draw(screen)
+
+
+class Polyline(_AbstractGeoObj):
+    def __init__(self, coors: polylineType, color: colorType):
+        self.coors = Polyline.__generalized_mod(coors)
+        super().__init__(color)
+
+    def move_to(self, D):
+        self.abstract_transformation(0, D, 1)
+
+    def rotate_by_dot(self, alpha, d):
+        self.abstract_transformation(0, [-d[0], -d[1], 1], 1)
+        self.abstract_transformation(alpha, [0, 0], 1)
+        self.abstract_transformation(0, d, 1)
+
+    def rotate(self, alpha):
+        c = self._center
+        self.rotate_by_dot(alpha, c)
+
+    def scale_by_dot(self, d, k):
+        self.abstract_transformation(0, [-d[0], -d[1], 1], 1)
+        self.abstract_transformation(0, [0, 0], k)
+        self.abstract_transformation(0, d, 1)
+
+    def scale(self, k):
+        c = self._center
+        self.scale_by_dot(c, k)
+
+    def pg_draw(self, screen: pygame.Surface):
+        for (x1, y1), (x2, y2) in zip(self.coors[:-1], self.coors[1:]):
+            line(screen, int(x1), int(y1), int(x2), int(y2), self.color)
+
+    @property
+    def _center(self):
+        return np.mean(self.coors, axis=0)[:2]
+
+    def abstract_transformation(self, alpha: int | float = 0, d: dvType = (0, 0), k: int | float = 1):
+        f = np.array([[k * cos(alpha), k*sin(alpha), 0],
+                      [-k*sin(alpha), k * cos(alpha), 0],
+                      [d[0], d[1], 1]]
+                     )
+        self.coors = self.coors.dot(f)
+
+    @staticmethod
+    def __generalized_mod(coors: polylineType):
+        coors = np.array(coors, dtype=np.float64)
+        ones_array = np.ones((coors.shape[0], 1), dtype=int)
+        return np.hstack((coors, ones_array))
+
+
+class Polygon(Polyline):
+    def __init__(self, coors: polylineType, color: colorType):
+        coors.append(coors[0])
+        super().__init__(coors, color)
+
+    @property
+    def _center(self):
+        return np.mean(self.coors[:-1], axis=0)[:2]

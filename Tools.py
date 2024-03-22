@@ -1,6 +1,6 @@
 import numpy as np
 from math import sqrt
-from typing import Final
+from typing import Union, Tuple, List, Final
 from random import randint
 
 
@@ -8,8 +8,10 @@ colorType: Final = tuple[int, int, int] | tuple[int, int, int, int]
 dvType: Final = np.ndarray[int | np.float64, int | np.float64] | list[int | float, int | float] | \
                  tuple[int | float, int | float]
 rectType: Final = list[[int, int], [int, int]] | np.ndarray[[int, int], [int, int]]
-polylineType: Final = list[[int | float, int | float], ...] | tuple[[int | float, int | float], ...] | \
-                      np.ndarray[[int | np.float64, int | np.float64], ...]
+NumberPair = Tuple[Union[int, float], Union[int, float]]
+polylineType: Final = Union[List[NumberPair], Tuple[NumberPair, ...], np.ndarray]
+#polylineType: Final = list[[int | float, int | float], ...] | tuple[[int | float, int | float], ...] | \
+                      #np.ndarray[[int | np.float64, int | np.float64], ...]
 
 
 def dot_coors(coors: dvType = np.array([0, 0])) -> np.ndarray[np.float64, np.float64]:
